@@ -4,18 +4,12 @@ import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
-import jdk.nashorn.internal.ir.EmptyNode;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.inventory.ItemStackHelper;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.MapItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -29,11 +23,11 @@ public class UpgradeUtil {
     private static final String KEY_UPGRADE = "upgrade";
     private static final String KEY_ENABLED = "enabled";
 
-    public static ListNBT setUpgradesNBT(List<Upgrade> upgrades) {
-        ListNBT list = new ListNBT();
+    public static ListTag setUpgradesNBT(List<Upgrade> upgrades) {
+        ListTag list = new ListTag();
 
         upgrades.forEach(upgrade -> {
-            CompoundNBT compound = new CompoundNBT();
+            CompoundTag compound = new CompoundTag();
             compound.putString(KEY_UPGRADE, upgrade.getName());
             compound.putBoolean(KEY_ENABLED, upgrade.isActive());
             list.add(compound);
@@ -42,16 +36,30 @@ public class UpgradeUtil {
         return list;
     }
 
-    public static ListNBT setFiltersNBT(List<ItemStack> items) {
-        ListNBT list = new ListNBT();
+    public static ListTag serializeList(List<Item> items) {
+        ListTag list = new ListTag();
 
         items.forEach(item -> {
-            CompoundNBT compound = new CompoundNBT();
-            compound.putInt(KEY_FILTER, MapItem.getId(item.getItem()));
+            CompoundTag compound = new CompoundTag();
+            compound.putInt(KEY_FILTER, MapItem.getId(item));
             list.add(compound);
         });
 
         return list;
+    }
+
+    public static List<Item> deserializeList(ListTag list){
+        List<Item> items = new ArrayList<>();
+        if (list.isEmpty())
+            return items;
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag listNBT = list.getCompound(i);
+            Item type = MapItem.byId(listNBT.getInt(KEY_FILTER));
+            if (type == null)
+                continue;
+            items.add(type);
+        }
+        return items;
     }
 
     public static void removeEnchantment(ItemStack gun, Enchantment e){
@@ -60,19 +68,7 @@ public class UpgradeUtil {
         EnchantmentHelper.setEnchantments(enchantments, gun);
     }
 
-    public static List<Item> getItemsFromList(ListNBT list){
-        List<Item> items = new ArrayList<>();
-        if (list.isEmpty())
-            return items;
-        for (int i = 0; i < list.size(); i++) {
-            CompoundNBT listNBT = list.getCompound(i);
-            Item type = MapItem.byId(listNBT.getInt(KEY_FILTER));
-            if (type == null)
-                continue;
-            items.add(type);
-        }
-        return items;
-    }
+
 
     public static Upgrade getUpgradeByName(String name){
         try {
@@ -91,12 +87,12 @@ public class UpgradeUtil {
         return null;
     }
 
-    public static List<Upgrade> getUpgradesFromNBT(ListNBT upgrades){
+    public static List<Upgrade> getUpgradesFromNBT(ListTag upgrades){
         List<Upgrade> upgradeList = new ArrayList<>();
         if (upgrades.isEmpty())
             return upgradeList;
         for (int i = 0; i < upgrades.size(); i++) {
-            CompoundNBT upgradeNBT = upgrades.getCompound(i);
+            CompoundTag upgradeNBT = upgrades.getCompound(i);
             Upgrade type = getUpgradeByName(upgradeNBT.getString(KEY_UPGRADE));
             if (type == null)
                 continue;

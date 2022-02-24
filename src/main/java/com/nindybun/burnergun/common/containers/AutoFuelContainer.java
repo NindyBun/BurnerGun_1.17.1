@@ -2,25 +2,24 @@ package com.nindybun.burnergun.common.containers;
 
 import com.nindybun.burnergun.common.items.upgrades.Auto_Fuel.AutoFuel;
 import com.nindybun.burnergun.common.items.upgrades.Auto_Fuel.AutoFuelHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class AutoFuelContainer extends Container {
+public class AutoFuelContainer extends AbstractContainerMenu {
 
-    AutoFuelContainer(int windowId, PlayerInventory playerInv,
-                      PacketBuffer buf){
+    AutoFuelContainer(int windowId, Inventory playerInv,
+                      FriendlyByteBuf buf){
         this(windowId, playerInv, new AutoFuelHandler(MAX_EXPECTED_HANDLER_SLOT_COUNT));
     }
 
-    public AutoFuelContainer(int windowId, PlayerInventory playerInventory, AutoFuelHandler handler){
+    public AutoFuelContainer(int windowId, Inventory playerInventory, AutoFuelHandler handler){
         super(ModContainers.AUTOFUEL_CONTAINER.get(), windowId);
         this.handler = handler;
         this.setup(playerInventory);
@@ -51,7 +50,7 @@ public class AutoFuelContainer extends Container {
     private final int HOTBAR_XPOS = 8;
     private final int HOTBAR_YPOS = 124;
 
-    private void setup(PlayerInventory playerInv){
+    private void setup(Inventory playerInv){
         // Add the players hotbar to the gui - the [xpos, ypos] location of each item
         for (int x = 0; x < HOTBAR_SLOT_COUNT; x++) {
             int slotNumber = x;
@@ -71,7 +70,7 @@ public class AutoFuelContainer extends Container {
         int bagSlotCount = handler.getSlots();
         if (bagSlotCount < 1 || bagSlotCount > MAX_EXPECTED_HANDLER_SLOT_COUNT) {
             LOGGER.warn("Unexpected invalid slot count in AutoFuelHandler(" + bagSlotCount + ")");
-            bagSlotCount = MathHelper.clamp(bagSlotCount, 1, MAX_EXPECTED_HANDLER_SLOT_COUNT);
+            bagSlotCount = Math.max(1, Math.min(MAX_EXPECTED_HANDLER_SLOT_COUNT, bagSlotCount));
         }
 
         // Add the tile inventory container to the gui
@@ -86,7 +85,7 @@ public class AutoFuelContainer extends Container {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         ItemStack main = playerIn.getMainHandItem();
         ItemStack off = playerIn.getOffhandItem();
         return (!main.isEmpty() && main.getItem() instanceof AutoFuel) ||
@@ -94,7 +93,7 @@ public class AutoFuelContainer extends Container {
     }
 
     @Override
-    public ItemStack quickMoveStack(PlayerEntity p_82846_1_, int p_82846_2_) {
+    public ItemStack quickMoveStack(Player p_82846_1_, int p_82846_2_) {
         super.quickMoveStack(p_82846_1_, p_82846_2_);
         return ItemStack.EMPTY;
     }

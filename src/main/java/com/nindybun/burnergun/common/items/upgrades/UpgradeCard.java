@@ -2,7 +2,7 @@ package com.nindybun.burnergun.common.items.upgrades;
 
 import com.nindybun.burnergun.common.BurnerGun;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +21,7 @@ public class UpgradeCard extends Item {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         if (stack.getItem() instanceof UpgradeCard){
             Upgrade upgrade = ((UpgradeCard)stack.getItem()).upgrade;
-            tooltip.add(new TranslatableComponent("Cost: " +  (!(this.getUpgrade().equals(Upgrade.AUTO_SMELT)) ? upgrade.getCost()+"" : "[50, 175]")).withStyle(ChatFormatting.AQUA));
+            tooltip.add(new TextComponent("Cost: " +  (!(this.getUpgrade().equals(Upgrade.AUTO_SMELT)) ? upgrade.getCost()+"" : "[50, 175]")).withStyle(ChatFormatting.AQUA));
             tooltip.add(new TranslatableComponent(this.upgrade.getToolTip())
                     .append(this.getUpgrade().getBaseName().equals(Upgrade.FOCAL_POINT_1.getBaseName()) ? this.upgrade.getExtraValue() + " blocks." : "")
                     .append(this.getUpgrade().getBaseName().equals(Upgrade.FUEL_EFFICIENCY_1.getBaseName()) ? this.upgrade.getExtraValue()*100 + "%" : "")

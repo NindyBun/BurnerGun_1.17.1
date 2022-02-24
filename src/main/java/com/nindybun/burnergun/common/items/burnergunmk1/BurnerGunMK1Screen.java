@@ -1,50 +1,42 @@
 package com.nindybun.burnergun.common.items.burnergunmk1;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.nindybun.burnergun.client.screens.ModScreens;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nindybun.burnergun.common.BurnerGun;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1Info;
 import com.nindybun.burnergun.common.containers.BurnerGunMK1Container;
 import com.nindybun.burnergun.common.network.PacketHandler;
-import com.nindybun.burnergun.common.network.packets.PacketOpenTrashGui;
 import com.nindybun.burnergun.common.network.packets.PacketUpdateGun;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.system.CallbackI;
 
 import java.awt.*;
-import java.security.SecureRandom;
 
-public class BurnerGunMK1Screen extends ContainerScreen<BurnerGunMK1Container> {
+public class BurnerGunMK1Screen extends AbstractContainerScreen<BurnerGunMK1Container> {
     private static ItemStack gun;
-    public BurnerGunMK1Screen(BurnerGunMK1Container container, PlayerInventory playerInv, ITextComponent title) {
+    public BurnerGunMK1Screen(BurnerGunMK1Container container, Inventory playerInv, Component title) {
         super(container, playerInv, title);
         this.gun = BurnerGunMK1.getGun(playerInv.player);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
-        RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int x, int y) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //this.minecraft
-        this.minecraft.getTextureManager().bind(DEFAULT_TEXTURE);
+        this.minecraft.getTextureManager().bindForSetup(DEFAULT_TEXTURE);
 
         // width and height are the size provided to the window when initialised after creation.
         // xSize, ySize are the expected size of the texture-? usually seems to be left as a default.
@@ -56,8 +48,8 @@ public class BurnerGunMK1Screen extends ContainerScreen<BurnerGunMK1Container> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
-        this.font.draw(matrixStack, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.burnergunmk1"), 19, -8, Color.WHITE.getRGB());
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
+        this.font.draw(matrixStack, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.burnergunmk1"), 19, -8, Color.WHITE.getRGB());
     }
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -71,14 +63,13 @@ public class BurnerGunMK1Screen extends ContainerScreen<BurnerGunMK1Container> {
     }
 
     @Override
-    public void init(Minecraft p_231158_1_, int p_231158_2_, int p_231158_3_) {
-        super.init(p_231158_1_, p_231158_2_, p_231158_3_);
-        buttons.clear();
+    protected void init() {
+        super.init();
+        clearWidgets();
         int x = this.width / 2;
         int y = this.height / 2;
-        addButton(new Button(x-45, y+(130/2), 90, 20,
-                new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.openSettings"), (button) -> {
-            //ModScreens.openGunSettingsScreen(gun);
+        addWidget(new net.minecraft.client.gui.components.Button(x-45, y+(130/2), 90, 20,
+                new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.openSettings"), (button) -> {
             PacketHandler.sendToServer(new PacketUpdateGun(true));
         }));
     }

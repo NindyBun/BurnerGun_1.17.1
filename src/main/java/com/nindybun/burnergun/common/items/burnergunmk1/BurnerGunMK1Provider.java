@@ -1,8 +1,9 @@
 package com.nindybun.burnergun.common.items.burnergunmk1;
 
 import com.nindybun.burnergun.common.containers.BurnerGunMK1Container;
-import net.minecraft.nbt.INBT;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
@@ -12,8 +13,8 @@ import net.minecraftforge.items.IItemHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class BurnerGunMK1Provider implements ICapabilitySerializable<INBT> {
-    private final Direction NO_SPECIFIC_SIDE = null;
+public class BurnerGunMK1Provider implements ICapabilitySerializable<CompoundTag> {
+    private final BurnerGunMK1Handler instance = new BurnerGunMK1Handler(BurnerGunMK1Container.MAX_EXPECTED_GUN_SLOT_COUNT);
 
     @Nonnull
     @Override
@@ -23,13 +24,13 @@ public class BurnerGunMK1Provider implements ICapabilitySerializable<INBT> {
     }
 
     @Override
-    public INBT serializeNBT() {
-        return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.writeNBT(getCachedInventory(), NO_SPECIFIC_SIDE);
+    public CompoundTag serializeNBT() {
+        return instance.serializeNBT();
     }
 
     @Override
-    public void deserializeNBT(INBT nbt) {
-        CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.readNBT(getCachedInventory(), NO_SPECIFIC_SIDE, nbt);
+    public void deserializeNBT(CompoundTag nbt) {
+        instance.deserializeNBT(nbt);
     }
 
     /**

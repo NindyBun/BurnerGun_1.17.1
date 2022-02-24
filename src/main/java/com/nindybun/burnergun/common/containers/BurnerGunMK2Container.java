@@ -2,26 +2,25 @@ package com.nindybun.burnergun.common.containers;
 
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2Handler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 
-public class BurnerGunMK2Container extends Container{
-    BurnerGunMK2Container(int windowId, PlayerInventory playerInv,
-                          PacketBuffer buf){
+public class BurnerGunMK2Container extends AbstractContainerMenu {
+    BurnerGunMK2Container(int windowId, Inventory playerInv,
+                          FriendlyByteBuf buf){
         this(windowId, playerInv, new BurnerGunMK2Handler(MAX_EXPECTED_GUN_SLOT_COUNT));
     }
 
-    public BurnerGunMK2Container(int windowId, PlayerInventory playerInventory, BurnerGunMK2Handler handler){
+    public BurnerGunMK2Container(int windowId, Inventory playerInventory, BurnerGunMK2Handler handler){
         super(ModContainers.BURNERGUNMK2_CONTAINER.get(), windowId);
         this.handler = handler;
         this.setup(playerInventory);
@@ -43,7 +42,7 @@ public class BurnerGunMK2Container extends Container{
 
     public static int MAX_EXPECTED_GUN_SLOT_COUNT = 9;
 
-    private void setup(PlayerInventory playerInv){
+    private void setup(Inventory playerInv){
         final int GUN_INVENTORY_YPOS = 8;
         final int GUN_INVENTORY_XPOS = 8;
         final int PLAYER_INVENTORY_YPOS = 48;
@@ -70,7 +69,7 @@ public class BurnerGunMK2Container extends Container{
         int gunSlotCount = handler.getSlots();
         if (gunSlotCount < 1 || gunSlotCount > MAX_EXPECTED_GUN_SLOT_COUNT) {
             LOGGER.warn("Unexpected invalid slot count in BurnerGunMK2(" + gunSlotCount + ")");
-            gunSlotCount = MathHelper.clamp(gunSlotCount, 1, MAX_EXPECTED_GUN_SLOT_COUNT);
+            gunSlotCount = Math.max(1, Math.min(MAX_EXPECTED_GUN_SLOT_COUNT, gunSlotCount));
         }
 
         // Add the tile inventory container to the gui
@@ -82,7 +81,7 @@ public class BurnerGunMK2Container extends Container{
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         ItemStack main = playerIn.getMainHandItem();
         ItemStack off = playerIn.getOffhandItem();
         return (!main.isEmpty() && main.getItem() instanceof BurnerGunMK2) ||
@@ -98,7 +97,7 @@ public class BurnerGunMK2Container extends Container{
     //   otherwise, returns a copy of the source stack
     @Nonnull
     @Override
-    public ItemStack quickMoveStack(PlayerEntity player, int sourceSlotIndex) {
+    public ItemStack quickMoveStack(Player player, int sourceSlotIndex) {
         Slot sourceSlot = slots.get(sourceSlotIndex);
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;  //EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();

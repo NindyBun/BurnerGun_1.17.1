@@ -1,8 +1,6 @@
 package com.nindybun.burnergun.common.network.packets;
 
 import com.nindybun.burnergun.client.screens.ModScreens;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1Info;
-import com.nindybun.burnergun.common.capabilities.burnergunmk2.BurnerGunMK2Info;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Auto_Smelt.AutoSmelt;
@@ -10,18 +8,12 @@ import com.nindybun.burnergun.common.items.upgrades.Trash.Trash;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
 import com.nindybun.burnergun.util.UpgradeUtil;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.AirItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.common.thread.SidedThreadGroup;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
-import net.minecraftforge.fml.network.FMLConnectionData;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.LogManager;
@@ -38,26 +30,24 @@ public class PacketUpdateGun {
         this.open = open;
     }
 
-    public static void encode(PacketUpdateGun msg, PacketBuffer buffer) {
+    public static void encode(PacketUpdateGun msg, FriendlyByteBuf buffer) {
         buffer.writeBoolean(msg.open);
     }
 
-    public static PacketUpdateGun decode(PacketBuffer buffer) {
+    public static PacketUpdateGun decode(FriendlyByteBuf buffer) {
         return new PacketUpdateGun(buffer.readBoolean());
     }
 
     public static class Handler {
         public static void handle(PacketUpdateGun msg, Supplier<NetworkEvent.Context> ctx) {
             ctx.get().enqueueWork(() -> {
-                ServerPlayerEntity player = ctx.get().getSender();
+                ServerPlayer player = ctx.get().getSender();
                 if (player == null)
                     return;
 
                 ItemStack gun = !BurnerGunMK2.getGun(player).isEmpty() ? BurnerGunMK2.getGun(player) : BurnerGunMK1.getGun(player);
                 if (gun.isEmpty())
                     return;
-                BurnerGunMK1Info infoMK1 = BurnerGunMK1.getInfo(gun);
-                BurnerGunMK2Info infoMK2 = BurnerGunMK2.getInfo(gun);
 
                 IItemHandler handler = gun.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
                 List<Upgrade> currentUpgrades = new ArrayList<>();
@@ -76,10 +66,10 @@ public class PacketUpdateGun {
                 }
 
                 if (UpgradeUtil.containsUpgradeFromList(currentUpgrades, Upgrade.TRASH)){
-                    List<ItemStack> trashFilter = new ArrayList<>();
+                    List<Item> trashFilter = new ArrayList<>();
                     for (int i = 0; i < trashHandler.getSlots(); i++){
                         if (!trashHandler.getStackInSlot(i).getItem().equals(Items.AIR))
-                            trashFilter.add(trashHandler.getStackInSlot(i));
+                            trashFilter.add(trashHandler.getStackInSlot(i).getItem());
                     }
                     if (infoMK1 != null)
                         infoMK1.setTrashNBTFilter(UpgradeUtil.setFiltersNBT(trashFilter));
@@ -93,10 +83,10 @@ public class PacketUpdateGun {
                 }
 
                 if (UpgradeUtil.containsUpgradeFromList(currentUpgrades, Upgrade.AUTO_SMELT)){
-                    List<ItemStack> smeltFilter = new ArrayList<>();
+                    List<Item> smeltFilter = new ArrayList<>();
                     for (int i = 0; i < smeltHandler.getSlots(); i++){
                         if (!smeltHandler.getStackInSlot(i).getItem().equals(Items.AIR))
-                            smeltFilter.add(smeltHandler.getStackInSlot(i));
+                            smeltFilter.add(smeltHandler.getStackInSlot(i).getItem());
                     }
                     if (infoMK1 != null)
                         infoMK1.setSmeltNBTFilter(UpgradeUtil.setFiltersNBT(smeltFilter));

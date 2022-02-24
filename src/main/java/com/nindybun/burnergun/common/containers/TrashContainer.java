@@ -4,25 +4,24 @@ import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Trash.Trash;
 import com.nindybun.burnergun.common.items.upgrades.Trash.TrashHandler;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.SlotItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class TrashContainer extends Container {
+public class TrashContainer extends AbstractContainerMenu {
 
-    TrashContainer(int windowId, PlayerInventory playerInv,
-                   PacketBuffer buf){
+    TrashContainer(int windowId, Inventory playerInv,
+                   FriendlyByteBuf buf){
         this(windowId, playerInv, new TrashHandler(MAX_EXPECTED_HANDLER_SLOT_COUNT));
     }
 
-    public TrashContainer(int windowId, PlayerInventory playerInventory, TrashHandler handler){
+    public TrashContainer(int windowId, Inventory playerInventory, TrashHandler handler){
         super(ModContainers.TRASH_CONTAINER.get(), windowId);
         this.handler = handler;
         this.setup(playerInventory);
@@ -53,7 +52,7 @@ public class TrashContainer extends Container {
     private final int HOTBAR_XPOS = 8;
     private final int HOTBAR_YPOS = 142;
 
-    private void setup(PlayerInventory playerInv){
+    private void setup(Inventory playerInv){
         // Add the players hotbar to the gui - the [xpos, ypos] location of each item
         for (int x = 0; x < HOTBAR_SLOT_COUNT; x++) {
             int slotNumber = x;
@@ -73,7 +72,7 @@ public class TrashContainer extends Container {
         int bagSlotCount = handler.getSlots();
         if (bagSlotCount < 1 || bagSlotCount > MAX_EXPECTED_HANDLER_SLOT_COUNT) {
             LOGGER.warn("Unexpected invalid slot count in TrashHandler(" + bagSlotCount + ")");
-            bagSlotCount = MathHelper.clamp(bagSlotCount, 1, MAX_EXPECTED_HANDLER_SLOT_COUNT);
+            bagSlotCount = Math.max(1, Math.min(MAX_EXPECTED_HANDLER_SLOT_COUNT, bagSlotCount));
         }
 
         // Add the tile inventory container to the gui
@@ -88,7 +87,7 @@ public class TrashContainer extends Container {
     }
 
     @Override
-    public boolean stillValid(PlayerEntity playerIn) {
+    public boolean stillValid(Player playerIn) {
         ItemStack main = playerIn.getMainHandItem();
         ItemStack off = playerIn.getOffhandItem();
         return (!main.isEmpty() && main.getItem() instanceof Trash) ||
@@ -101,7 +100,7 @@ public class TrashContainer extends Container {
 
 
     @Override
-    public ItemStack quickMoveStack(PlayerEntity playerIn, int index) {
+    public ItemStack quickMoveStack(Player playerIn, int index) {
         super.quickMoveStack(playerIn, index);
         return ItemStack.EMPTY;
     }
