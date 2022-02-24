@@ -1,45 +1,45 @@
 package com.nindybun.burnergun.common.items.burnergunmk2;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.nindybun.burnergun.client.screens.ModScreens;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nindybun.burnergun.common.BurnerGun;
 import com.nindybun.burnergun.common.containers.BurnerGunMK2Container;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.network.PacketHandler;
 import com.nindybun.burnergun.common.network.packets.PacketUpdateGun;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 
-public class BurnerGunMK2Screen extends ContainerScreen<BurnerGunMK2Container> {
+public class BurnerGunMK2Screen extends AbstractContainerScreen<BurnerGunMK2Container> {
     ItemStack gun;
-    public BurnerGunMK2Screen(BurnerGunMK2Container container, PlayerInventory playerInv, ITextComponent title) {
+    public BurnerGunMK2Screen(BurnerGunMK2Container container, Inventory playerInv, Component title) {
         super(container, playerInv, title);
         this.gun = BurnerGunMK1.getGun(playerInv.player);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
-        RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int x, int y) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //this.minecraft
-        this.minecraft.getTextureManager().bind(DEFAULT_TEXTURE);
+        this.minecraft.getTextureManager().bindForSetup(DEFAULT_TEXTURE);
 
         // width and height are the size provided to the window when initialised after creation.
         // xSize, ySize are the expected size of the texture-? usually seems to be left as a default.
@@ -51,8 +51,8 @@ public class BurnerGunMK2Screen extends ContainerScreen<BurnerGunMK2Container> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
-        this.font.draw(matrixStack, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.burnergunmk2"), 3, -8, Color.WHITE.getRGB());
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
+        this.font.draw(matrixStack, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.burnergunmk2"), 3, -8, Color.WHITE.getRGB());
     }
 
     @Override
@@ -62,14 +62,13 @@ public class BurnerGunMK2Screen extends ContainerScreen<BurnerGunMK2Container> {
     }
 
     @Override
-    public void init(Minecraft p_231158_1_, int p_231158_2_, int p_231158_3_) {
-        super.init(p_231158_1_, p_231158_2_, p_231158_3_);
-        buttons.clear();
+    public void init() {
+        super.init();
+        clearWidgets();
         int x = this.width / 2;
         int y = this.height / 2;
-        addButton(new Button(x-45, y+(130/2), 90, 20,
-                new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.openSettings"), (button) -> {
-            //ModScreens.openGunSettingsScreen(gun);
+        addWidget(new Button(x-45, y+(130/2), 90, 20,
+                new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.openSettings"), (button) -> {
             PacketHandler.sendToServer(new PacketUpdateGun(true));
         }));
     }

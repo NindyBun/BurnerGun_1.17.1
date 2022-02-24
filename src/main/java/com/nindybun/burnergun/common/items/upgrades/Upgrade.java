@@ -28,30 +28,16 @@ public enum Upgrade {
     FUEL_EFFICIENCY_4("fuel_efficiency_4", 4, 0, 1, 0.75, true),
     FUEL_EFFICIENCY_5("fuel_efficiency_5", 5, 0, 1, 0.90, true),
 
-    HEAT_EFFICIENCY_1("heat_efficiency_1", 1, 0, 1, 0.15, true),
-    HEAT_EFFICIENCY_2("heat_efficiency_2", 2, 0, 1, 0.35, true),
-    HEAT_EFFICIENCY_3("heat_efficiency_3", 3, 0, 1, 0.50, true),
-    HEAT_EFFICIENCY_4("heat_efficiency_4", 4, 0, 1, 0.75, true),
-    HEAT_EFFICIENCY_5("heat_efficiency_5", 5, 0, 1, 0.90, true),
-    COOLDOWN_MULTIPLIER_1("cooldown_multiplier_1", 1, 0, 1, 2.00, true),
-    COOLDOWN_MULTIPLIER_2("cooldown_multiplier_2", 2, 0, 1, 5.00, true),
-    COOLDOWN_MULTIPLIER_3("cooldown_multiplier_3", 3, 0, 1, 10.00, true),
-
     MAGNET("magnet", -1, 75, 1, 0, true),
     SILK_TOUCH("silk_touch", -1, 150, 1, 0, true),
     LIGHT("light", -1, 50, 1, 0, true),
     AUTO_SMELT("auto_smelt", -1, 50 + (int)(Math.random() * ((175 - 50) + 1)), 1, 0, true),
     TRASH("trash", -1, 75, 1, 0, true),
-    UPGRADE_BAG("upgrade_bag", -1, 0, 1, 0, false),
     AMBIENCE_1("ambience_1", 1, 0, 1, 1, false),
     AMBIENCE_2("ambience_2", 1, 0, 1, 2, false),
     AMBIENCE_3("ambience_3", 1, 0, 1, 4, false),
     AMBIENCE_4("ambience_4", 1, 0, 1, 6, false),
-    AMBIENCE_5("ambience_5", 1, 0, 1, 8, false),
-
-    AUTO_FUEL("auto_fuel", -1, 0, 1, 0, true),
-    UNIFUEL("unifuel", -1, 0, 1, 0, false),
-    REACTOR("reactor", -1, 0, 1, 0, false),
+    AMBIENCE_5("ambience_5", 1, 0, 1, 8, false)
     ;
 
     private final String name;

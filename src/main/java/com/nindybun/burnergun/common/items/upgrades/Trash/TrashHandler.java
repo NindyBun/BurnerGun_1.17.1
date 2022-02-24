@@ -2,10 +2,9 @@ package com.nindybun.burnergun.common.items.upgrades.Trash;
 
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
-import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,11 +21,10 @@ public class TrashHandler extends ItemStackHandler {
 
     @Nonnull
     @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+    public ItemStack getStackInSlot(int slot) {
         this.setStackInSlot(slot, Items.AIR.getDefaultInstance());
         return ItemStack.EMPTY;
     }
-
 
     @Override
     public boolean isItemValid(int slot, @Nonnull ItemStack stack) {

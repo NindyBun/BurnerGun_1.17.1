@@ -4,13 +4,12 @@ import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.AbstractCookingRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.world.World;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +19,7 @@ import java.util.Optional;
 
 public class AutoSmeltHandler extends ItemStackHandler {
     public static final Logger LOGGER = LogManager.getLogger();
-    private static final IRecipeType<? extends AbstractCookingRecipe> RECIPE_TYPE = IRecipeType.SMELTING;
+    private static final RecipeType<? extends AbstractCookingRecipe> RECIPE_TYPE = RecipeType.SMELTING;
 
     public AutoSmeltHandler(int numberOfSlots){
         super(numberOfSlots);
@@ -28,15 +27,15 @@ public class AutoSmeltHandler extends ItemStackHandler {
 
     @Nonnull
     @Override
-    public ItemStack extractItem(int slot, int amount, boolean simulate) {
+    public ItemStack getStackInSlot(int slot) {
         this.setStackInSlot(slot, Items.AIR.getDefaultInstance());
         return ItemStack.EMPTY;
     }
 
     public boolean hasSmeltOption(ItemStack stack){
-        IInventory inv = new Inventory(1);
+        SimpleContainer inv = new SimpleContainer(1);
         inv.setItem(0, stack);
-        World world = Minecraft.getInstance().level;
+        Level world = Minecraft.getInstance().level;
         Optional<? extends AbstractCookingRecipe> recipe = world.getRecipeManager().getRecipeFor(RECIPE_TYPE, inv, world);
         if (!recipe.isPresent())
             return false;

@@ -1,6 +1,5 @@
 package com.nindybun.burnergun.common.network.packets;
 
-import com.nindybun.burnergun.common.containers.AutoFuelContainer;
 import com.nindybun.burnergun.common.items.upgrades.Auto_Fuel.AutoFuel;
 import com.nindybun.burnergun.common.items.upgrades.Auto_Fuel.AutoFuelHandler;
 import net.minecraft.entity.player.ServerPlayerEntity;

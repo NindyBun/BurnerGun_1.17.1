@@ -7,7 +7,7 @@ import com.nindybun.burnergun.common.network.packets.PacketOpenBurnerGunGui;
 import com.nindybun.burnergun.common.network.packets.PacketSpawnLightAtPlayer;
 import com.nindybun.burnergun.common.network.packets.PacketSpawnLightAtRaycast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +19,7 @@ public class KeyInputHandler {
     @SubscribeEvent
     public void onKeyInput(InputEvent.KeyInputEvent event)
     {
-        PlayerEntity player = Minecraft.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (Keybinds.burnergun_light_key.isDown() && event.getAction() == 1 && Minecraft.getInstance().screen == null)
             PacketHandler.sendToServer(new PacketSpawnLightAtRaycast());
         if (Keybinds.burnergun_lightPlayer_key.isDown() && event.getAction() == 1 && Minecraft.getInstance().screen == null)

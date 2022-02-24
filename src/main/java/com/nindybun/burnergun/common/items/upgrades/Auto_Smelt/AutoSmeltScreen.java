@@ -1,39 +1,38 @@
 package com.nindybun.burnergun.common.items.upgrades.Auto_Smelt;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nindybun.burnergun.common.BurnerGun;
 import com.nindybun.burnergun.common.containers.AutoSmeltContainer;
-import com.nindybun.burnergun.common.containers.TrashContainer;
 import com.nindybun.burnergun.common.network.PacketHandler;
 import com.nindybun.burnergun.common.network.packets.PacketUpdateGun;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 
-public class AutoSmeltScreen extends ContainerScreen<AutoSmeltContainer> {
-    public AutoSmeltScreen(AutoSmeltContainer container, PlayerInventory playerInv, ITextComponent title) {
+public class AutoSmeltScreen extends AbstractContainerScreen<AutoSmeltContainer> {
+    public AutoSmeltScreen(AutoSmeltContainer container, Inventory playerInv, Component title) {
         super(container, playerInv, title);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         this.renderBackground(matrixStack);
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void renderBg(MatrixStack matrixStack, float partialTicks, int x, int y) {
-        RenderSystem.blendColor(1.0F, 1.0F, 1.0F, 1.0F);
+    protected void renderBg(PoseStack matrixStack, float partialTicks, int x, int y) {
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         //this.minecraft
-        this.minecraft.getTextureManager().bind(DEFAULT_TEXTURE);
+        this.minecraft.getTextureManager().bindForSetup(DEFAULT_TEXTURE);
 
         // width and height are the size provided to the window when initialised after creation.
         // xSize, ySize are the expected size of the texture-? usually seems to be left as a default.
@@ -45,8 +44,8 @@ public class AutoSmeltScreen extends ContainerScreen<AutoSmeltContainer> {
     }
 
     @Override
-    protected void renderLabels(MatrixStack matrixStack, int x, int y) {
-        this.font.draw(matrixStack, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.autosmelt_filter"), 2, -8, Color.WHITE.getRGB());
+    protected void renderLabels(PoseStack matrixStack, int x, int y) {
+        this.font.draw(matrixStack, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.autosmelt_filter"), 2, -8, Color.WHITE.getRGB());
     }
 
     @Override
