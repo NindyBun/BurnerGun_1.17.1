@@ -1,11 +1,9 @@
 package com.nindybun.burnergun.client.screens;
 
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.nindybun.burnergun.client.screens.buttons.ToggleButton;
 import com.nindybun.burnergun.common.BurnerGun;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1Info;
-import com.nindybun.burnergun.common.capabilities.burnergunmk2.BurnerGunMK2Info;
+import com.nindybun.burnergun.common.items.BurnerGunNBT;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
@@ -14,16 +12,12 @@ import com.nindybun.burnergun.common.network.packets.*;
 import com.nindybun.burnergun.util.StringUtil;
 import com.nindybun.burnergun.util.UpgradeUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.Widget;
-import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.client.gui.widget.Slider;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fmlclient.gui.widget.Slider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,19 +48,17 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
     private Button colorButton;
 
     protected burnergunSettingsScreen(ItemStack gun) {
-        super(new StringTextComponent("Title"));
+        super(new TextComponent("Title"));
         this.gun = gun;
-        BurnerGunMK1Info infoMK1 = gun.getItem() instanceof BurnerGunMK1 ? BurnerGunMK1.getInfo(gun) : null;
-        BurnerGunMK2Info infoMK2 = gun.getItem() instanceof BurnerGunMK2 ? BurnerGunMK2.getInfo(gun) : null;
-        this.volume = infoMK1 != null ? infoMK1.getVolume() : infoMK2.getVolume();
-        this.vertical = infoMK1 != null ? infoMK1.getVertical() : infoMK2.getVertical();
-        this.maxVertical = infoMK1 != null ? infoMK1.getMaxVertical() : infoMK2.getMaxVertical();
-        this.horizontal = infoMK1 != null ? infoMK1.getHorizontal() : infoMK2.getHorizontal();
-        this.maxHorizontal = infoMK1 != null ? infoMK1.getMaxHorizontal() : infoMK2.getMaxHorizontal();
-        this.raycastRange = infoMK1 != null ? infoMK1.getRaycastRange() : infoMK2.getRaycastRange();
-        this.maxRaycastRange = infoMK1 != null ? infoMK1.getMaxRaycastRange() : infoMK2.getMaxRaycastRange();
-        this.trashFilterWhitelist = infoMK1 != null ? infoMK1.getTrashIsWhitelist() : infoMK2.getTrashIsWhitelist();
-        this.smeltFilterWhitelist = infoMK1 != null ? infoMK1.getSmeltIsWhitelist() : infoMK2.getSmeltIsWhitelist();
+        this.volume = BurnerGunNBT.getVolume(gun);
+        this.vertical = BurnerGunNBT.getVertical(gun);
+        this.maxVertical = BurnerGunNBT.getMaxVertical(gun);
+        this.horizontal = BurnerGunNBT.getHorizontal(gun);
+        this.maxHorizontal = BurnerGunNBT.getMaxHorizontal(gun);
+        this.raycastRange = BurnerGunNBT.getRaycast(gun);
+        this.maxRaycastRange = BurnerGunNBT.getMaxRaycast(gun);
+        this.trashFilterWhitelist = BurnerGunNBT.getTrashWhitelist(gun);
+        this.smeltFilterWhitelist = BurnerGunNBT.getSmeltWhitelist(gun);
 
         toggleableList.clear();
         toggleableList = UpgradeUtil.getToggleableUpgrades(gun);
@@ -106,13 +98,13 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
         int index = 0, x = midX+15, y = midY-((yy*20)+((yy-1)*5))/2;
 
         if (containsTrash){
-            ToggleButton btn = new ToggleButton(x, y, new StringTextComponent(Upgrade.TRASH.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + Upgrade.TRASH.getName() + "_upgrade.png"), send -> this.toggleUpgrade(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.TRASH), send));
-            addButton(btn);
+            ToggleButton btn = new ToggleButton(x, y, new TextComponent(Upgrade.TRASH.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + Upgrade.TRASH.getName() + "_upgrade.png"), send -> this.toggleUpgrade(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.TRASH), send));
+            addWidget(btn);
             upgradeButtons.put(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.TRASH), btn);
-            addButton(new Button(x+25, y, 95, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
+            addWidget(new Button(x+25, y, 95, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
                 PacketHandler.sendToServer(new PacketOpenTrashGui());
             }));
-            addButton(new WhitelistButton(x+125, y, 20, 20, trashFilterWhitelist, (button) -> {
+            addWidget(new WhitelistButton(x+125, y, 20, 20, trashFilterWhitelist, (button) -> {
                 trashFilterWhitelist = !trashFilterWhitelist;
                 ((WhitelistButton) button).setWhitelist(trashFilterWhitelist);
                 PacketHandler.sendToServer(new PacketToggleTrashFilter());

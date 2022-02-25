@@ -1,25 +1,21 @@
 package com.nindybun.burnergun.common.network.packets;
 
+import com.nindybun.burnergun.common.BurnerGun;
 import com.nindybun.burnergun.common.blocks.ModBlocks;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1Info;
-import com.nindybun.burnergun.common.capabilities.burnergunmk2.BurnerGunMK2Info;
+import com.nindybun.burnergun.common.items.BurnerGunNBT;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.util.UpgradeUtil;
 import com.nindybun.burnergun.util.WorldUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.common.thread.SidedThreadGroups;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,34 +28,32 @@ public class PacketSpawnLightAtRaycast {
     public PacketSpawnLightAtRaycast() {
     }
 
-    public static void encode(PacketSpawnLightAtRaycast msg, PacketBuffer buffer) {
+    public static void encode(PacketSpawnLightAtRaycast msg, FriendlyByteBuf buffer) {
     }
 
-    public static PacketSpawnLightAtRaycast decode(PacketBuffer buffer) {
+    public static PacketSpawnLightAtRaycast decode(FriendlyByteBuf buffer) {
         return new PacketSpawnLightAtRaycast();
     }
 
     public static class Handler {
         public static void handle(PacketSpawnLightAtRaycast msg, Supplier<NetworkEvent.Context> ctx) {
             ctx.get().enqueueWork(() -> {
-                ServerPlayerEntity player = ctx.get().getSender();
+                ServerPlayer player = ctx.get().getSender();
                 if (player == null)
                     return;
 
                 ItemStack gun = !BurnerGunMK2.getGun(player).isEmpty() ? BurnerGunMK2.getGun(player) : BurnerGunMK1.getGun(player);
                 if (gun.isEmpty())
                     return;
-                BurnerGunMK1Info infoMK1 = BurnerGunMK1.getInfo(gun);
-                BurnerGunMK2Info infoMK2 = BurnerGunMK2.getInfo(gun);
-                List<Upgrade> upgrades = infoMK1 != null ? UpgradeUtil.getUpgradesFromNBT(infoMK1.getUpgradeNBTList()) : UpgradeUtil.getUpgradesFromNBT(infoMK2.getUpgradeNBTList());
+                List<Upgrade> upgrades = BurnerGunNBT.getUpgrades(gun);
                 if (UpgradeUtil.containsUpgradeFromList(upgrades, Upgrade.LIGHT)){
-                    if (infoMK1 != null && infoMK1.getFuelValue() < Upgrade.LIGHT.getCost())
+                    if (gun.getItem() instanceof BurnerGunMK1 && BurnerGunNBT.getFuelValue(gun) < Upgrade.LIGHT.getCost())
                         return;
-                    BlockRayTraceResult ray = WorldUtil.getLookingAt(player.level, player, RayTraceContext.FluidMode.NONE, infoMK1 != null ? infoMK1.getRaycastRange() : infoMK2.getRaycastRange());
+                    BlockHitResult ray = WorldUtil.getLookingAt(player.level, player, ClipContext.Fluid.NONE, BurnerGunNBT.getRaycast(gun));
                     BlockState state = player.level.getBlockState(ray.getBlockPos());
-                    if (infoMK1 != null && (state == Blocks.AIR.defaultBlockState() || player.level.getBlockState(ray.getBlockPos().relative(ray.getDirection())) == Blocks.AIR.defaultBlockState())){
-                        if (infoMK1.getFuelValue() >= Upgrade.LIGHT.getCost())
-                            infoMK1.setFuelValue(infoMK1.getFuelValue()-Upgrade.LIGHT.getCost());
+                    if (gun.getItem() instanceof BurnerGunMK1 && (state == Blocks.AIR.defaultBlockState() || player.level.getBlockState(ray.getBlockPos().relative(ray.getDirection())) == Blocks.AIR.defaultBlockState())){
+                        if (BurnerGunNBT.getFuelValue(gun) >= Upgrade.LIGHT.getCost())
+                            BurnerGunNBT.setFuelValue(gun, BurnerGunNBT.getFuelValue(gun)-Upgrade.LIGHT.getCost());
                         else
                             return;
                     }

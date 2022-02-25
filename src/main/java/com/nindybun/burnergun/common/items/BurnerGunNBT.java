@@ -3,11 +3,9 @@ package com.nindybun.burnergun.common.items;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.util.UpgradeUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import oshi.util.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,13 +129,13 @@ public class BurnerGunNBT {
         return !tag.contains(RAYCAST) ? setRaycast(gun, MIN_RAYCAST) : tag.getInt(RAYCAST);
     }
 
-    public static int setMaxRayCast(ItemStack gun, int value){
+    public static int setMaxRaycast(ItemStack gun, int value){
         gun.getOrCreateTag().putInt(MAX_RAYCAST, value);
         return value;
     }
     public static int getMaxRaycast(ItemStack gun){
         CompoundTag tag = gun.getOrCreateTag();
-        return !tag.contains(MAX_RAYCAST) ? setMaxRayCast(gun, MIN_RAYCAST) : tag.getInt(MAX_RAYCAST);
+        return !tag.contains(MAX_RAYCAST) ? setMaxRaycast(gun, MIN_RAYCAST) : tag.getInt(MAX_RAYCAST);
     }
 
     public static List<Upgrade> setUprades(ItemStack gun, List<Upgrade> upgrades){
