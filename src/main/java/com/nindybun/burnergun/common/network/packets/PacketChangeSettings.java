@@ -1,5 +1,6 @@
 package com.nindybun.burnergun.common.network.packets;
 
+import com.nindybun.burnergun.common.items.BurnerGunNBT;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import net.minecraft.nbt.CompoundTag;
@@ -37,17 +38,10 @@ public class PacketChangeSettings {
                 ItemStack gun = !BurnerGunMK2.getGun(player).isEmpty() ? BurnerGunMK2.getGun(player) : BurnerGunMK1.getGun(player);
                 if (gun.isEmpty())
                     return;
-                if (infoMK1 != null){
-                    infoMK1.setVolume(msg.nbt.getFloat("Volume"));
-                    infoMK1.setRaycastRange(msg.nbt.getInt("Raycast"));
-                    infoMK1.setVertical(msg.nbt.getInt("Vertical"));
-                    infoMK1.setHorizontal(msg.nbt.getInt("Horizontal"));
-                }else{
-                    infoMK2.setVolume(msg.nbt.getFloat("Volume"));
-                    infoMK2.setRaycastRange(msg.nbt.getInt("Raycast"));
-                    infoMK2.setVertical(msg.nbt.getInt("Vertical"));
-                    infoMK2.setHorizontal(msg.nbt.getInt("Horizontal"));
-                }
+                BurnerGunNBT.setVolume(gun, msg.nbt.getFloat("Volume"));
+                BurnerGunNBT.setRaycast(gun, msg.nbt.getInt("Raycast"));
+                BurnerGunNBT.setVertical(gun, msg.nbt.getInt("Vertical"));
+                BurnerGunNBT.setHorizontal(gun, msg.nbt.getInt("Horizontal"));
             });
             ctx.get().setPacketHandled(true);
         }

@@ -25,7 +25,7 @@ public class BurnerGunNBT {
     private static final String MAX_VERTICAL = "burnergun.tag.max_vertical";
     private static final String RAYCAST = "burnergun.tag.raycast";
     private static final String MAX_RAYCAST = "burnergun.tag.max_raycast";
-    private static final String UPGRADES = "burnergun.tag.upgrades";
+    public static final String UPGRADES = "burnergun.tag.upgrades";
     private static final String COLOR = "burnergun.tag.color";
 
     public static final int MIN_RAYCAST = 5;

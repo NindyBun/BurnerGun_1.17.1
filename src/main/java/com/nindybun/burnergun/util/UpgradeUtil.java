@@ -7,8 +7,10 @@ import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -104,10 +106,6 @@ public class UpgradeUtil {
         return upgradeList;
     }
 
-    public static List<Upgrade> getUpgradesFromGun(ItemStack stack){
-        ListTag nbt = BurnerGunMK1.getInfo(stack) != null ? BurnerGunMK1.getInfo(stack).getUpgradeNBTList() : BurnerGunMK2.getInfo(stack).getUpgradeNBTList();
-        return getUpgradesFromNBT(nbt);
-    }
     public static boolean containsUpgradeFromList(List<Upgrade> upgradeList, Upgrade upgrade){
         for (Upgrade index : upgradeList) {
             if (index.getBaseName().equals(upgrade.getBaseName()))
@@ -121,7 +119,7 @@ public class UpgradeUtil {
     }
 
     public static List<Upgrade> getActiveUpgrades(ItemStack stack){
-        return getUpgradesFromGun(stack).stream().filter(Upgrade::isActive).collect(Collectors.toList());
+        return BurnerGunNBT.getUpgrades(stack).stream().filter(Upgrade::isActive).collect(Collectors.toList());
     }
 
     public static List<Upgrade> getUpgrades(ItemStack stack){
@@ -151,7 +149,7 @@ public class UpgradeUtil {
 
     public static ItemStack getStackByUpgrade(ItemStack stack, Upgrade upgrade){
         List<ItemStack> upgradeStack = getUpgradeStacks(stack);
-        List<Upgrade> upgradeCard = getUpgrades(stack);
+        List<Upgrade> upgradeCard = BurnerGunNBT.getUpgrades(stack);
         for (int index = 0 ; index < upgradeCard.size() ; index++) {
             if (upgradeCard.get(index).getBaseName().equals(upgrade.getBaseName())){
                 return upgradeStack.get(index);
@@ -161,9 +159,9 @@ public class UpgradeUtil {
     }
 
     public static void updateUpgrade(ItemStack stack, Upgrade upgrade){
-        ListTag upgrades = BurnerGunMK1.getInfo(stack) != null ? BurnerGunMK1.getInfo(stack).getUpgradeNBTList() : BurnerGunMK2.getInfo(stack).getUpgradeNBTList();
+        ListTag upgrades = stack.getOrCreateTag().getList(BurnerGunNBT.UPGRADES, Tag.TAG_COMPOUND);
         upgrades.forEach(e -> {
-            CompoundNBT compound = (CompoundNBT)e;
+            CompoundTag compound = (CompoundTag) e;
             String name = compound.getString(KEY_UPGRADE);
             boolean isEnabled = compound.getBoolean(KEY_ENABLED);
             if( (name.contains(Upgrade.FORTUNE_1.getBaseName()) && isEnabled && upgrade.lazyIs(Upgrade.SILK_TOUCH) )
