@@ -38,7 +38,6 @@ public class BurnerGun{
 
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::setupClient);
-        MinecraftForge.EVENT_BUS.register(new FMLEvents());
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -47,8 +46,8 @@ public class BurnerGun{
     private void setup(final FMLCommonSetupEvent event)
     {
         PacketHandler.register();
-        CapabilityManager.INSTANCE.register(BurnerGunMK1Info.class, new BurnerGunMK1InfoStorage(), BurnerGunMK1InfoProvider::new);
-        CapabilityManager.INSTANCE.register(BurnerGunMK2Info.class, new BurnerGunMK2InfoStorage(), BurnerGunMK2InfoProvider::new);
+        //CapabilityManager.INSTANCE.register(BurnerGunMK1Info.class, new BurnerGunMK1InfoStorage(), BurnerGunMK1InfoProvider::new);
+        //CapabilityManager.INSTANCE.register(BurnerGunMK2Info.class, new BurnerGunMK2InfoStorage(), BurnerGunMK2InfoProvider::new);
     }
 
     private void setupClient(final FMLClientSetupEvent event)

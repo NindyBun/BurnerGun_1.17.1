@@ -3,16 +3,11 @@ package com.nindybun.burnergun.common.items.burnergunmk1;
 import com.nindybun.burnergun.common.containers.BurnerGunMK1Container;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
-import com.nindybun.burnergun.common.items.upgrades.Upgrade_Bag.UpgradeBag;
 import com.nindybun.burnergun.common.network.PacketHandler;
 import com.nindybun.burnergun.common.network.packets.PacketRefuel;
-import net.minecraft.world.inventory.FurnaceFuelSlot;
-import net.minecraft.world.inventory.FurnaceMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,16 +31,19 @@ public class BurnerGunMK1Handler extends ItemStackHandler {
         if (slot < 0 || slot >= MAX_SLOTS) {
             throw new IllegalArgumentException("Invalid slot number: " + slot);
         }
-        if ((isFuel(stack) || stack.getItem() == Items.BUCKET
-                || stack.getItem().equals(Upgrade.AMBIENCE_1.getCard().asItem())
-                || stack.getItem().equals(Upgrade.AMBIENCE_2.getCard().asItem())
-                || stack.getItem().equals(Upgrade.AMBIENCE_3.getCard().asItem())
-                || stack.getItem().equals(Upgrade.AMBIENCE_4.getCard().asItem())
-                || stack.getItem().equals(Upgrade.AMBIENCE_5.getCard().asItem())) && slot == 0 ) {
-            PacketHandler.sendToServer(new PacketRefuel());
-            return true;
+        if (slot == 0 ) {
+            if (stack.getItem().equals(Upgrade.AMBIENCE_1.getCard().asItem())
+                    || stack.getItem().equals(Upgrade.AMBIENCE_2.getCard().asItem())
+                    || stack.getItem().equals(Upgrade.AMBIENCE_3.getCard().asItem())
+                    || stack.getItem().equals(Upgrade.AMBIENCE_4.getCard().asItem())
+                    || stack.getItem().equals(Upgrade.AMBIENCE_5.getCard().asItem()))
+                return true;
+            else if (isFuel(stack) || stack.getItem() == Items.BUCKET){
+                PacketHandler.sendToServer(new PacketRefuel());
+                return true;
+            }
         }
-        if (slot != 0 && stack.getItem() instanceof UpgradeCard && !(stack.getItem() instanceof UpgradeBag)
+        if (slot != 0 && stack.getItem() instanceof UpgradeCard
                 && !stack.getItem().equals(Upgrade.AMBIENCE_1.getCard().asItem())
                 && !stack.getItem().equals(Upgrade.AMBIENCE_2.getCard().asItem())
                 && !stack.getItem().equals(Upgrade.AMBIENCE_3.getCard().asItem())

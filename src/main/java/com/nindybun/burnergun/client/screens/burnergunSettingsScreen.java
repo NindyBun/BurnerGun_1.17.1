@@ -1,21 +1,25 @@
 package com.nindybun.burnergun.client.screens;
 
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nindybun.burnergun.client.screens.buttons.ToggleButton;
 import com.nindybun.burnergun.common.BurnerGun;
 import com.nindybun.burnergun.common.items.BurnerGunNBT;
-import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
-import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.Upgrade;
 import com.nindybun.burnergun.common.network.PacketHandler;
 import com.nindybun.burnergun.common.network.packets.*;
 import com.nindybun.burnergun.util.StringUtil;
 import com.nindybun.burnergun.util.UpgradeUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fmlclient.gui.widget.Slider;
 import org.apache.logging.log4j.LogManager;
@@ -87,7 +91,7 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
 
     @Override
     protected void init() {
-        List<Widget> settings = new ArrayList<>();
+        List<AbstractWidget> settings = new ArrayList<>();
         int midX = width/2;
         int midY = height/2;
 
@@ -101,7 +105,7 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
             ToggleButton btn = new ToggleButton(x, y, new TextComponent(Upgrade.TRASH.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + Upgrade.TRASH.getName() + "_upgrade.png"), send -> this.toggleUpgrade(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.TRASH), send));
             addWidget(btn);
             upgradeButtons.put(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.TRASH), btn);
-            addWidget(new Button(x+25, y, 95, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
+            addWidget(new net.minecraft.client.gui.components.Button(x+25, y, 95, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
                 PacketHandler.sendToServer(new PacketOpenTrashGui());
             }));
             addWidget(new WhitelistButton(x+125, y, 20, 20, trashFilterWhitelist, (button) -> {
@@ -112,13 +116,13 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
         }
 
         if (containsSmelt){
-            ToggleButton btn = new ToggleButton(x, y+(containsTrash?25:0), new StringTextComponent(Upgrade.AUTO_SMELT.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + Upgrade.AUTO_SMELT.getName() + "_upgrade.png"), send -> this.toggleUpgrade(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.AUTO_SMELT), send));
-            addButton(btn);
+            ToggleButton btn = new ToggleButton(x, y+(containsTrash?25:0), new TextComponent(Upgrade.AUTO_SMELT.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + Upgrade.AUTO_SMELT.getName() + "_upgrade.png"), send -> this.toggleUpgrade(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.AUTO_SMELT), send));
+            addWidget(btn);
             upgradeButtons.put(UpgradeUtil.getUpgradeFromListByUpgrade(toggleableList, Upgrade.AUTO_SMELT), btn);
-            addButton(new Button(x+25, y+(containsTrash?25:0), 95, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
+            addWidget(new net.minecraft.client.gui.components.Button(x+25, y+(containsTrash?25:0), 95, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.edit_filter"), (button) -> {
                 PacketHandler.sendToServer(new PacketOpenAutoSmeltGui());
             }));
-            addButton(new WhitelistButton(x+125, y+(containsTrash?25:0), 20, 20, smeltFilterWhitelist, (button) -> {
+            addWidget(new WhitelistButton(x+125, y+(containsTrash?25:0), 20, 20, smeltFilterWhitelist, (button) -> {
                 smeltFilterWhitelist = !smeltFilterWhitelist;
                 ((WhitelistButton) button).setWhitelist(smeltFilterWhitelist);
                 PacketHandler.sendToServer(new PacketToggleSmeltFilter());
@@ -127,8 +131,8 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
 
         for (Upgrade upgrade : toggleableList){
             if (!upgrade.equals(Upgrade.AUTO_SMELT) && !upgrade.equals(Upgrade.TRASH)){
-                ToggleButton btn = new ToggleButton(x + (index*25), y+(containsTrash?25:0)+(containsSmelt?25:0), new StringTextComponent(upgrade.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + upgrade.getName() + "_upgrade.png"), send -> this.toggleUpgrade(upgrade, send));
-                addButton(btn);
+                ToggleButton btn = new ToggleButton(x + (index*25), y+(containsTrash?25:0)+(containsSmelt?25:0), new TextComponent(upgrade.getName()), new ResourceLocation(BurnerGun.MOD_ID, "textures/items/" + upgrade.getName() + "_upgrade.png"), send -> this.toggleUpgrade(upgrade, send));
+                addWidget(btn);
                 upgradeButtons.put(upgrade, btn);
                 index++;
                 if (index % 4 == 0) {
@@ -139,18 +143,18 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
         }
 
         //Left Side
-        settings.add(volumeSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.volume"), new StringTextComponent("%"), 0, 100,  Math.min(100, volume * 100), false, true, slider -> {}, this));
-        settings.add(raycastSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.raycast"), new StringTextComponent(""), 1, maxRaycastRange, raycastRange, false, true, slider -> {}, this));
-        settings.add(verticalSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.vertical"), new StringTextComponent(""), 0, maxVertical, vertical, false, true, slider -> {}, this));
-        settings.add(horizontalSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.horizontal"), new StringTextComponent(""), 0, maxHorizontal, horizontal, false, true, slider -> {}, this));
-        settings.add(colorButton = new Button(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.color"), button -> {
+        settings.add(volumeSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.volume"), new TextComponent("%"), 0, 100,  Math.min(100, volume * 100), false, true, slider -> {}, this));
+        settings.add(raycastSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.raycast"), new TextComponent(""), 1, maxRaycastRange, raycastRange, false, true, slider -> {}, this));
+        settings.add(verticalSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.vertical"), new TextComponent(""), 0, maxVertical, vertical, false, true, slider -> {}, this));
+        settings.add(horizontalSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.horizontal"), new TextComponent(""), 0, maxHorizontal, horizontal, false, true, slider -> {}, this));
+        settings.add(colorButton = new net.minecraft.client.gui.components.Button(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.color"), button -> {
             ModScreens.openColorScreen(gun);
         }));
 
         int top = midY-(((settings.size()*20)+(settings.size()-1)*5)/2);
         for (int i = 0; i < settings.size(); i++) {
             settings.get(i).y = (top)+(i*25);
-            addButton(settings.get(i));
+            addWidget(settings.get(i));
         }
     }
 
@@ -161,7 +165,7 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
 
     @Override
     public void removed() {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.putFloat("Volume", volume);
         nbt.putInt("Raycast", raycastRange);
         nbt.putInt("Vertical", vertical);
@@ -201,7 +205,7 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
 
     @Override
     public boolean keyPressed(int p_231046_1_, int p_231046_2_, int p_231046_3_) {
-        InputMappings.Input key = InputMappings.getKey(p_231046_1_, p_231046_2_);
+        InputConstants.Key key = InputConstants.getKey(p_231046_1_, p_231046_2_);
         if (p_231046_1_ == 256 || minecraft.options.keyInventory.isActiveAndMatches(key)){
             onClose();
             return true;
@@ -210,10 +214,10 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float ticks_) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float ticks_) {
         //Gives us the darkened background
         this.renderBackground(matrixStack);
-        TranslationTextComponent string  = new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.settings");
+        TranslatableComponent string  = new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.settings");
         drawString(matrixStack, Minecraft.getInstance().font, string , (width/2)-StringUtil.getStringPixelLength(string.getString())/2, 20, Color.WHITE.getRGB());
         super.render(matrixStack, mouseX, mouseY, ticks_);
     }
@@ -234,16 +238,16 @@ public class burnergunSettingsScreen extends Screen implements Slider.ISlider {
         }
     }
 
-    public static final class WhitelistButton extends Button {
+    public static final class WhitelistButton extends net.minecraft.client.gui.components.Button {
         private boolean isWhitelist;
 
-        public WhitelistButton(int widthIn, int heightIn, int width, int height, boolean isWhitelist, IPressable onPress) {
-            super(widthIn, heightIn, width, height, new StringTextComponent(""), onPress);
+        public WhitelistButton(int widthIn, int heightIn, int width, int height, boolean isWhitelist, net.minecraft.client.gui.components.Button.OnPress onPress) {
+            super(widthIn, heightIn, width, height, TextComponent.EMPTY, onPress);
             this.isWhitelist = isWhitelist;
         }
 
         @Override
-        public void render(MatrixStack stack, int mouseX, int mouseY, float partialTicks) {
+        public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {
             fill(stack, this.x, this.y, this.x + this.width, this.y + this.height, 0xFFa8a8a8);
             fill(stack, this.x + 2, this.y + 2, this.x + this.width - 2, this.y + this.height - 2, this.isWhitelist ? 0xFFFFFFFF : 0xFF000000);
         }

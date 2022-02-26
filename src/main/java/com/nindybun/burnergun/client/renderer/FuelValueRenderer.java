@@ -1,29 +1,22 @@
 package com.nindybun.burnergun.client.renderer;
 
 import com.nindybun.burnergun.common.BurnerGun;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1Info;
-import com.nindybun.burnergun.common.capabilities.burnergunmk1.BurnerGunMK1InfoProvider;
+import com.nindybun.burnergun.common.items.BurnerGunNBT;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
-import com.nindybun.burnergun.common.items.upgrades.Upgrade;
-import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +30,7 @@ public class FuelValueRenderer {
         if (event.getType() == RenderGameOverlayEvent.ElementType.ALL){
             ItemStack stack = ItemStack.EMPTY;
             Minecraft mc = Minecraft.getInstance();
-            ClientPlayerEntity player = mc.player;
+            LocalPlayer player = mc.player;
             if (player.getMainHandItem().getItem() instanceof BurnerGunMK1)
                 stack = player.getMainHandItem();
             else if (player.getOffhandItem().getItem() instanceof BurnerGunMK1)
@@ -48,10 +41,9 @@ public class FuelValueRenderer {
         }
     }
 
-    public static void renderFuel(RenderGameOverlayEvent.Post event, ItemStack stack){
-        BurnerGunMK1Info info = stack.getCapability(BurnerGunMK1InfoProvider.burnerGunInfoMK1Capability, null).orElseThrow(()->new IllegalArgumentException("No capability found!"));
-        FontRenderer fontRenderer = Minecraft.getInstance().font;
-        int level = (int)info.getFuelValue();
+    public static void renderFuel(RenderGameOverlayEvent.Post event, ItemStack gun){
+        Font fontRenderer = Minecraft.getInstance().font;
+        int level = (int) BurnerGunNBT.getFuelValue(gun);
         Color color;
         if (level > base_buffer*3/4)
                 color = Color.GREEN;

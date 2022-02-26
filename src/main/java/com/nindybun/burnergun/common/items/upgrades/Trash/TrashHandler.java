@@ -3,6 +3,7 @@ package com.nindybun.burnergun.common.items.upgrades.Trash;
 import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
 import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.items.upgrades.UpgradeCard;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.items.ItemStackHandler;
@@ -24,6 +25,17 @@ public class TrashHandler extends ItemStackHandler {
     public ItemStack getStackInSlot(int slot) {
         this.setStackInSlot(slot, Items.AIR.getDefaultInstance());
         return ItemStack.EMPTY;
+    }
+
+    @Override
+    public CompoundTag serializeNBT() {
+        super.serializeNBT();
+        return new CompoundTag();
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        super.deserializeNBT(nbt);
     }
 
     @Override

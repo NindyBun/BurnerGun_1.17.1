@@ -1,16 +1,18 @@
 package com.nindybun.burnergun.client.screens;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.nindybun.burnergun.common.BurnerGun;
 import com.nindybun.burnergun.common.items.BurnerGunNBT;
-import com.nindybun.burnergun.common.items.burnergunmk1.BurnerGunMK1;
-import com.nindybun.burnergun.common.items.burnergunmk2.BurnerGunMK2;
 import com.nindybun.burnergun.common.network.PacketHandler;
 import com.nindybun.burnergun.common.network.packets.PacketChangeColor;
 import com.nindybun.burnergun.util.StringUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fmlclient.gui.widget.Slider;
 import org.apache.logging.log4j.LogManager;
@@ -33,19 +35,19 @@ public class colorScreen extends Screen implements Slider.ISlider {
 
     @Override
     protected void init() {
-        List<Widget> settings = new ArrayList<>();
+        List<AbstractWidget> settings = new ArrayList<>();
         int midX = width/2;
         int midY = height/2;
 
         //Left Side
-        settings.add(redSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.red"), new StringTextComponent(""), 0, 100,  Math.min(100, color[0] * 100), false, true, slider -> {}, this));
-        settings.add(greenSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.green"), new StringTextComponent(""), 0, 100, Math.min(100, color[1] * 100), false, true, slider -> {}, this));
-        settings.add(blueSlider = new Slider(midX-140, 0, 125, 20, new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.blue"), new StringTextComponent(""), 0, 100, Math.min(100, color[2] * 100), false, true, slider -> {}, this));
+        settings.add(redSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.red"), new TextComponent(""), 0, 100,  Math.min(100, color[0] * 100), false, true, slider -> {}, this));
+        settings.add(greenSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.green"), new TextComponent(""), 0, 100, Math.min(100, color[1] * 100), false, true, slider -> {}, this));
+        settings.add(blueSlider = new Slider(midX-140, 0, 125, 20, new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.blue"), new TextComponent(""), 0, 100, Math.min(100, color[2] * 100), false, true, slider -> {}, this));
 
         int top = midY-(((settings.size()*20)+(settings.size()-1)*5)/2);
         for (int i = 0; i < settings.size(); i++) {
             settings.get(i).y = (top)+(i*25);
-            addButton(settings.get(i));
+            addWidget(settings.get(i));
         }
     }
 
@@ -56,7 +58,7 @@ public class colorScreen extends Screen implements Slider.ISlider {
 
     @Override
     public void removed() {
-        CompoundNBT nbt = new CompoundNBT();
+        CompoundTag nbt = new CompoundTag();
         nbt.putFloat("Red", color[0]);
         nbt.putFloat("Green", color[1]);
         nbt.putFloat("Blue", color[2]);
@@ -90,7 +92,7 @@ public class colorScreen extends Screen implements Slider.ISlider {
 
     @Override
     public boolean keyPressed(int p_231046_1_, int p_231046_2_, int p_231046_3_) {
-        InputMappings.Input key = InputMappings.getKey(p_231046_1_, p_231046_2_);
+        InputConstants.Key key = InputConstants.getKey(p_231046_1_, p_231046_2_);
         if (p_231046_1_ == 256 || minecraft.options.keyInventory.isActiveAndMatches(key)){
             onClose();
             return true;
@@ -99,10 +101,10 @@ public class colorScreen extends Screen implements Slider.ISlider {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float ticks_) {
+    public void render(PoseStack matrixStack, int mouseX, int mouseY, float ticks_) {
         //Gives us the darkened background
         this.renderBackground(matrixStack);
-        TranslationTextComponent string = new TranslationTextComponent("tooltip." + BurnerGun.MOD_ID + ".screen.color");
+        TranslatableComponent string = new TranslatableComponent("tooltip." + BurnerGun.MOD_ID + ".screen.color");
         drawString(matrixStack, Minecraft.getInstance().font, string, (width/2)-StringUtil.getStringPixelLength(string.getString())/2, 20, Color.WHITE.getRGB());
         fill(matrixStack, width/2+15, height/2-50, width/2+115, height/2+50, new Color(color[0], color[1], color[2]).hashCode());
         super.render(matrixStack, mouseX, mouseY, ticks_);
